@@ -1,0 +1,51 @@
+*supermaven.txt*  Supermaven for Vim 9
+
+Author: jhonoryza (port dari supermaven-nvim)
+
+==============================================================================
+CONTENTS                                            *supermaven-contents*
+
+  1. Intro .................... |supermaven-intro|
+  2. Install .................. |supermaven-install|
+  3. Config ................... |supermaven-config|
+  4. Commands ................. |supermaven-commands|
+  5. Keymaps .................. |supermaven-keymaps|
+
+==============================================================================
+INTRO                                                *supermaven-intro*
+
+Supermaven untuk Vim 9, port dari supermaven-nvim Lua → Vimscript.
+Ghost via prop (Vim) / extmark (Neovim), job via stdio SM-MESSAGE.
+
+==============================================================================
+INSTALL                                              *supermaven-install*
+
+> vim-plug: Plug 'jhonoryza/supermaven-vim'
+> manual: git clone https://github.com/jhonoryza/supermaven-vim ~/.vim/pack/supermaven/start/supermaven-vim
+
+==============================================================================
+CONFIG                                               *supermaven-config*
+
+g:supermaven_ignore_filetypes  dict/list, default {}
+g:supermaven_manual            bool, default v:false
+g:supermaven_idle_delay        number, default 75
+g:supermaven_suggestion_color  string, default "#ffffff"
+g:supermaven_suggestion_cterm  number, default 244
+
+==============================================================================
+COMMANDS                                             *supermaven-commands*
+
+:SupermavenStart   start binary
+:SupermavenStop    stop binary
+:SupermavenStatus  echo running / not running
+:SupermavenShowLog open log
+:SupermavenClearLog clear log
+
+==============================================================================
+KEYMAPS                                              *supermaven-keymaps*
+
+<Tab>   accept
+<C-]>   clear
+<C-j>   accept word
+
+vim:tw=78:ts=8:ft=help:norl:
