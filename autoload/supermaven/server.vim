@@ -109,22 +109,61 @@ function! supermaven#server#Start() abort
   call ch_sendraw(s:channel, json_encode({'kind':'greeting','allowGitignore':v:false}) . "\n")
   let g:supermaven_job = s:job
   call supermaven#log#Info('Supermaven started: ' . bin)
+  call supermaven#server#StartPollTimer()
 endfunction
 
 function! supermaven#server#Stop() abort
+  if s:poll_timer != -1
+    try | call timer_stop(s:poll_timer) | catch | endtry
+    let s:poll_timer = -1
+  endif
   if s:job isnot v:null
     try | call job_stop(s:job) | catch | endtry
     let s:job = v:null
+    let s:channel = v:null
   endif
+endfunction
+
+let s:poll_timer = -1
+function! s:Poll() abort
+  " simple poll: if ghost exists and prefix changed, re-derive
+  if empty(s:state_map) | return | endif
+  let cur_prefix = strpart(getline('.'), 0, col('.')-1)
+  for id in keys(s:state_map)
+    let state = s:state_map[id]
+    let comp = get(state, 'completion', [])
+    if empty(comp) | continue | endif
+    let txt = ''
+    for it in comp | if get(it,'kind','')=='text' | let txt .= get(it,'text','') | endif | endfor
+    if txt[:len(cur_prefix)-1] ==# cur_prefix[:len(state.prefix)-1] && len(txt) > len(cur_prefix)
+      let remaining = strpart(txt, len(cur_prefix))
+      if !empty(remaining)
+        call supermaven#ShowGhost(remaining, 0)
+        return
+      endif
+    endif
+  endfor
 endfunction
 
 function! supermaven#server#SendStateUpdate(updates) abort
   if s:channel is v:null | return | endif
   let s:current_id += 1
+  let prefix = ''
+  for u in a:updates
+    if get(u, 'kind', '') ==# 'cursor_update'
+      " offset is prefix length, reconstruct prefix from current line
+      let prefix = strpart(getline('.'), 0, get(u, 'offset', 0))
+    endif
+  endfor
   let msg = {'kind':'state_update','newId':string(s:current_id),'updates':a:updates}
-  let s:state_map[s:current_id] = {'prefix':'','completion':[]}
+  let s:state_map[s:current_id] = {'prefix':prefix,'completion':[]}
   call ch_sendraw(s:channel, json_encode(msg) . "\n")
   return s:current_id
+endfunction
+
+function! supermaven#server#StartPollTimer() abort
+  if s:poll_timer != -1 | call timer_stop(s:poll_timer) | endif
+  let s:poll_timer = timer_start(25, {-> s:Poll()}, {'repeat': -1})
 endfunction
 
 let &cpo = s:save_cpo
