@@ -1,10 +1,10 @@
 # supermaven-vim
 
-Supermaven untuk Vim 9 (port dari [supermaven-nvim](https://github.com/supermaven-inc/supermaven-nvim) Lua → Vimscript). Ghost via `prop` (Vim) / `extmark` (Neovim), `job` stdio `SM-MESSAGE`, tanpa Neovim.
+Supermaven for Vim 9 — port of [supermaven-nvim](https://github.com/supermaven-inc/supermaven-nvim) from Lua to Vimscript. Ghost text via `prop` (Vim) / `extmark` (Neovim), `job` stdio `SM-MESSAGE`, no Neovim required.
 
-> Translate: `completion_preview` → `prop_add`, `binary_handler` → `job_start`, `document_listener` → autocmd. Lihat [tulisan lengkap](https://jhonoryza.github.io/tulisan/14-cara-install-supermaven-di-vim.html).
+> Translation: `completion_preview.lua` → `autoload/supermaven.vim` (`prop_add`), `binary_handler.lua` → `autoload/supermaven/server.vim` (`job_start` stdio), `document_listener` → `plugin/supermaven.vim` autocmd. See full guide in [tulisan](https://jhonoryza.github.io/tulisan/14-cara-install-supermaven-di-vim.html).
 
-## Prasyarat
+## Requirements
 
 ```bash
 vim --version | head -n1  # 9.0+
@@ -24,46 +24,46 @@ git clone https://github.com/jhonoryza/supermaven-vim ~/.vim/pack/supermaven/sta
 git clone https://github.com/jhonoryza/supermaven-vim ~/.local/share/nvim/site/pack/supermaven/start/supermaven-vim
 ```
 
-Binary `sm-agent` auto-download ke `~/.supermaven/binary/v20/<platform>-<arch>/sm-agent` via `https://supermaven.com/api/download-path-v2`.
+Binary `sm-agent` auto-downloads to `~/.supermaven/binary/v20/<platform>-<arch>/sm-agent` via `https://supermaven.com/api/download-path-v2`.
 
-## Auth
+## Authentication
 
 ```bash
-# Free Tier (buka popup aktivasi)
+# Free Tier (opens activation popup)
 :SupermavenUseFree
-# atau Pro
+# or Pro
 :SupermavenUsePro
-# atau API key manual
+# or API key manually
 mkdir -p ~/.config/supermaven
 echo '{"apiKey":"sm-..."}' > ~/.config/supermaven/config.json
 :SupermavenAuth sm-xxxx
 ```
 
-Cek:
+Check:
 ```vim
 :SupermavenStatus
 :SupermavenShowLog
 ```
 
-## Keymap
+## Keymaps
 
-Default `Tab` / `C-]` / `C-j`. Biar tidak bentrok Windsurf (`Ctrl`), pakai `Alt`:
+Default `Tab` / `C-]` / `C-j`. To avoid conflict with Windsurf (`Ctrl`), use `Alt`:
 
 ```vim
 let g:supermaven_disable_bindings = 1
-imap <M-g> <Plug>(supermaven-accept)        " terima semua
-imap <M-]> <Plug>(supermaven-clear)         " hapus
-imap <M-j> <Cmd>call supermaven#Accept()<CR> " terima 1 kata
-imap <M-Space> <Cmd>call supermaven#Complete()<CR> " trigger manual
+imap <M-g> <Plug>(supermaven-accept)        " accept all
+imap <M-]> <Plug>(supermaven-clear)         " clear
+imap <M-j> <Cmd>call supermaven#Accept()<CR> " accept word
+imap <M-Space> <Cmd>call supermaven#Complete()<CR> " trigger manually
 ```
 
-Atau pakai `Ctrl` kalau Codeium off:
+Or use `Ctrl` if Codeium is disabled:
 ```vim
 imap <C-g> <Plug>(supermaven-accept)
 imap <C-Space> <Cmd>call supermaven#Complete()<CR>
 ```
 
-## Config
+## Configuration
 
 ```vim
 let g:supermaven_ignore_filetypes = {'cpp': v:true}
@@ -90,11 +90,11 @@ cmp.setup { sources = {{ name = "supermaven" }} }
 vim.api.nvim_set_hl(0, "CmpItemKindSupermaven", {fg="#6CC644"})
 ```
 
-Vim 9 cukup inline ghost, tidak perlu `cmp`.
+For Vim 9, inline ghost text is enough — no `cmp` needed.
 
-## Cara Kerja
+## How it Works
 
-| nvim | Vim |
+| Neovim (Lua) | Vim (Vimscript) |
 |---|---|
 | `vim.uv.spawn("sm-agent","stdio")` | `job_start([bin,"stdio"])` |
 | `nvim_buf_set_extmark` | `prop_add` |
@@ -102,4 +102,4 @@ Vim 9 cukup inline ghost, tidak perlu `cmp`.
 
 ## License
 
-MIT
+MIT — same as `supermaven-nvim`.
