@@ -60,8 +60,34 @@ function! s:HandleMessage(msg) abort
       for item in get(a:msg, 'items', [])
         call add(s:state_map[id].completion, item)
       endfor
+      " render first completion as ghost
+      let comp = s:state_map[id].completion
+      if !empty(comp)
+        let txt = ''
+        for it in comp
+          if get(it, 'kind', '') ==# 'text'
+            let txt .= get(it, 'text', '')
+          endif
+        endfor
+        if !empty(txt)
+          call supermaven#ShowGhost(txt, 0)
+        endif
+      endif
     endif
+  elseif get(a:msg, 'kind', '') ==# 'service_tier'
+    call supermaven#log#Info('Supermaven tier: ' . get(a:msg, 'display', ''))
   endif
+endfunction
+
+function! supermaven#server#SendBufferUpdate(buf, text, prefix, lnum, col) abort
+  let path = fnamemodify(bufname(a:buf), ':p')
+  if empty(path) | let path = 'file:///tmp/untitled' | endif
+  let offset = len(a:prefix)
+  let updates = [
+        \ {'kind':'cursor_update','path':path,'offset':offset},
+        \ {'kind':'file_update','path':path,'content':a:text},
+        \ ]
+  return supermaven#server#SendStateUpdate(updates)
 endfunction
 
 function! supermaven#server#Start() abort
