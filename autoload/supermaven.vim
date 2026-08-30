@@ -65,9 +65,26 @@ function! supermaven#DebouncedComplete() abort
   let g:_supermaven_timer = timer_start(delay, {-> supermaven#Complete(curbuf)})
 endfunction
 
+function! s:ShouldIgnore() abort
+  let ft = &filetype
+  let ignore = get(g:, 'supermaven_ignore_filetypes', {})
+  if type(ignore) == v:t_dict && has_key(ignore, ft) && ignore[ft]
+    return v:true
+  endif
+  if type(ignore) == v:t_list && index(ignore, ft) >= 0
+    return v:true
+  endif
+  if exists('g:SupermavenCondition') && type(g:SupermavenCondition) == v:t_func
+    try | if call(g:SupermavenCondition, []) | return v:true | endif | catch | endtry
+  endif
+  if get(g:, 'SUPERMAVEN_DISABLED', 0) | return v:true | endif
+  return v:false
+endfunction
+
 function! supermaven#Complete(...) abort
   if a:0 > 0 && a:1 != bufnr('') | return | endif
   if !get(g:, 'supermaven_enabled', v:true) | return | endif
+  if s:ShouldIgnore() | call supermaven#Clear() | return | endif
   let buf = bufnr('%')
   let text = join(getbufline(buf, 1, '$'), "\n")
   let lnum = line('.')
