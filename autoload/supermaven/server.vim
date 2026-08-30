@@ -60,17 +60,17 @@ function! s:HandleMessage(msg) abort
       for item in get(a:msg, 'items', [])
         call add(s:state_map[id].completion, item)
       endfor
-      " render first completion as ghost
       let comp = s:state_map[id].completion
       if !empty(comp)
-        let txt = ''
-        for it in comp
-          if get(it, 'kind', '') ==# 'text'
-            let txt .= get(it, 'text', '')
-          endif
-        endfor
-        if !empty(txt)
-          call supermaven#ShowGhost(txt, 0)
+        let params = {'line_before_cursor': getline('.')[:col('.')-2], 'line_after_cursor': getline('.')[col('.')-1:], 'dust_strings': [], 'can_retry': v:true, 'can_show_partial_line': v:true}
+        let derived = supermaven#textual#DeriveCompletion(comp, params)
+        if type(derived) == v:t_dict && has_key(derived, 'text') && !empty(derived.text)
+          call supermaven#ShowGhost(derived.text, len(get(derived, 'dedent', '')))
+        else
+          " fallback simple
+          let txt = ''
+          for it in comp | if get(it,'kind','')=='text' | let txt .= get(it,'text','') | endif | endfor
+          if !empty(txt) | call supermaven#ShowGhost(txt, 0) | endif
         endif
       endif
     endif
