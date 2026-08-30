@@ -4,8 +4,13 @@ let s:hlgroup = 'SupermavenSuggestion'
 let s:request_nonce = 0
 let s:ghost_text = ''
 let s:ghost_prior_delete = 0
-if !has('nvim') && empty(prop_type_get(s:hlgroup))
-  call prop_type_add(s:hlgroup, {'highlight': s:hlgroup})
+if !has('nvim')
+  try | exec 'hi def ' . s:hlgroup . ' guifg=#ffffff ctermfg=244' | catch | endtry
+  if empty(prop_type_get(s:hlgroup))
+    call prop_type_add(s:hlgroup, {'highlight': s:hlgroup})
+  endif
+else
+  try | call nvim_set_hl(0, s:hlgroup, {'fg':'#ffffff','ctermfg':244}) | catch | endtry
 endif
 
 function! supermaven#Clear() abort
