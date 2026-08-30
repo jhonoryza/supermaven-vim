@@ -11,9 +11,12 @@ command! SupermavenClear call supermaven#Clear()
 
 augroup supermaven
   autocmd!
-  autocmd InsertEnter,CursorMovedI,CompleteChanged * call supermaven#DebouncedComplete()
+  autocmd InsertEnter,CursorMovedI,CompleteChanged,TextChanged,TextChangedI,TextChangedP * call supermaven#DebouncedComplete()
+  autocmd CursorMoved,CursorMovedI * call supermaven#OnCursorMoved()
   autocmd InsertLeave,BufLeave * call supermaven#Clear()
   autocmd VimLeave * call supermaven#server#Stop()
+  autocmd BufEnter * if get(g:, 'supermaven_enabled', v:true) | call supermaven#server#Start() | endif
+  autocmd ColorScheme,VimEnter * call supermaven#UpdateHighlight()
 augroup END
 
 imap <Plug>(supermaven-accept) <Cmd>call supermaven#Accept()<CR>

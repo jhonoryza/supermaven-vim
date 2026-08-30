@@ -76,6 +76,25 @@ function! supermaven#Complete(...) abort
   call supermaven#server#SendBufferUpdate(buf, text, prefix, lnum, col)
 endfunction
 
+function! supermaven#OnCursorMoved() abort
+  " mirror document_listener CursorMoved -> clear ghost if context changed
+  if !empty(s:ghost_text) && mode() !~# '^[iR]'
+    call supermaven#Clear()
+  endif
+endfunction
+
+function! supermaven#UpdateHighlight() abort
+  let color = get(g:, 'supermaven_suggestion_color', '#ffffff')
+  let cterm = get(g:, 'supermaven_suggestion_cterm', 244)
+  try
+    if has('nvim')
+      call nvim_set_hl(0, 'SupermavenSuggestion', {'fg': color, 'ctermfg': cterm})
+    else
+      exec 'hi SupermavenSuggestion guifg=' . color . ' ctermfg=' . cterm
+    endif
+  catch | endtry
+endfunction
+
 function! supermaven#GetStatusString() abort
   if empty(s:ghost_text) | return '   ' | endif
   return ' * '
