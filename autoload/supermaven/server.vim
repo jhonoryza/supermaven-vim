@@ -123,6 +123,25 @@ function! supermaven#server#Stop() abort
     let s:channel = v:null
   endif
 endfunction
+function! supermaven#server#IsRunning() abort
+  return s:job isnot v:null && job_status(s:job) ==# 'run'
+endfunction
+function! supermaven#server#Restart() abort
+  call supermaven#server#Stop()
+  call supermaven#server#Start()
+endfunction
+function! supermaven#server#Toggle() abort
+  if supermaven#server#IsRunning() | call supermaven#server#Stop() | else | call supermaven#server#Start() | endif
+endfunction
+function! supermaven#server#UseFree() abort
+  if s:channel isnot v:null | call ch_sendraw(s:channel, json_encode({'kind':'use_free_version'}) . "\n") | endif
+endfunction
+function! supermaven#server#UsePro() abort
+  if s:channel isnot v:null | call ch_sendraw(s:channel, json_encode({'kind':'use_pro'}) . "\n") | endif
+endfunction
+function! supermaven#server#Logout() abort
+  if s:channel isnot v:null | call ch_sendraw(s:channel, json_encode({'kind':'logout'}) . "\n") | endif
+endfunction
 
 let s:poll_timer = -1
 function! s:Poll() abort

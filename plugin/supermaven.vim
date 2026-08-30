@@ -6,8 +6,15 @@ let g:loaded_supermaven = 1
 command! -nargs=? SupermavenAuth exe supermaven#command#Command(<q-args>)
 command! SupermavenStart call supermaven#server#Start()
 command! SupermavenStop call supermaven#server#Stop()
-command! SupermavenStatus echo supermaven#GetStatusString()
+command! SupermavenRestart call supermaven#server#Restart()
+command! SupermavenToggle call supermaven#server#Toggle()
+command! SupermavenStatus echo supermaven#server#IsRunning() ? 'Supermaven running' : 'Supermaven not running'
 command! SupermavenClear call supermaven#Clear()
+command! SupermavenUseFree call supermaven#server#UseFree()
+command! SupermavenUsePro call supermaven#server#UsePro()
+command! SupermavenLogout call supermaven#server#Logout()
+command! SupermavenShowLog call supermaven#log#Show()
+command! SupermavenClearLog call supermaven#log#Clear()
 
 augroup supermaven
   autocmd!

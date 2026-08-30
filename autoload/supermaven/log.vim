@@ -35,4 +35,8 @@ endfunction
 function! supermaven#log#Show() abort
   exe 'tabnew ' . fnameescape(s:logfile)
 endfunction
+function! supermaven#log#Clear() abort
+  try | call writefile([], s:logfile) | catch | endtry
+  echomsg 'Supermaven log cleared'
+endfunction
 let &cpo = s:save_cpo
